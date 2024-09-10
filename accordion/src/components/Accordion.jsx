@@ -44,54 +44,60 @@ import './Accordion.css'
 // --------------------------------------------------------------------------------------------------------------------------------//
 
 const Accordion = ({ items }) => {
-    const [activeElements, setActiveElements] = useState([]);
+    const [selectedElements, setSelectedElements] = useState([0])
+    const [multiSelection, setMultiSelection] = useState(false)
 
+    const toggleSelection = () => {
+        setMultiSelection(!multiSelection)
+        setSelectedElements([0])
+    }
     return (
         <div className="accordion">
+            <div className="toggle-button" onClick={() => toggleSelection()}>
+                <div className={`toggle-dot ${multiSelection ? "active" : ""}`}></div>
+            </div>
             {
                 items.map((item, index) => (
                     <AccordionItem
-                        key={item.title}
                         item={item}
                         index={index}
-                        activeElemets={activeElements}
-                        setActiveElements={setActiveElements}
+                        selectedElements={selectedElements}
+                        setSelectedElements={setSelectedElements}
+                        multiSelection={multiSelection}
+                        key={index}
                     />
                 ))
             }
+            <p>{multiSelection ? "Multi-selection mode" : "Mono-selection mode"}</p>
         </div>
     )
 }
 
-const AccordionItem = ({ item, index, activeElements, setActiveElements }) => {
-    // const active = index in activeElements;
+const AccordionItem = ({ item, index, selectedElements, setSelectedElements, multiSelection }) => {
+    var active = selectedElements.includes(index)
 
-    const active = false;
-    console.log("Global", index)
-
-    const updateActiveElements = () => {
-        console.log("updateElements", activeElements)
-        setActiveElements(elements => {
-            const newElements = elements
-            if (!(index in newElements)) {
-                newElements.push(index)
+    const addElement = () => {
+        if (multiSelection) {
+            if (selectedElements.includes(index)) {
+                setSelectedElements(selectedElements.filter(item => item != index))
             } else {
-                newElements.filter(() => index)
+                setSelectedElements([...selectedElements, index])
             }
-            return newElements;
-        })
+        } else {
+            setSelectedElements(selectedElements.includes(index) ? [] : [index])
+        }
     }
 
     return (
-        <div className="accordion-item" onClick={() => updateActiveElements()}>
-            <div className="accordion-item-header">
+        <div className="accordion-item">
+            <div className="accordion-item-header" onClick={() => addElement()}>
                 <p>{item.title}</p>
                 <div className="accordion-item-header-buttons">
-                    <FaMinus className={`accordion-minus ${active ? "active" : ""}`} />
-                    <FaPlus className={`accordion-plus ${!active ? "active" : ""}`} />
+                    <FaMinus className={`accordion-minus ${active ? "active" : "s"}`} />
+                    <FaPlus className={`accordion-plus ${!active ? "active" : "s"}`} />
                 </div>
             </div>
-            <div className={`accordion-item-content ${active && "active"}`}>
+            <div className={`accordion-item-content ${active ? "active" : "s"}`}>
                 <p>{item.content}</p>
             </div>
         </div>
